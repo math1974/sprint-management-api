@@ -25,11 +25,11 @@ describe('UserService', () => {
 	});
 
 	beforeEach(async () => {
-		await UserEntity.getRepository().clear();
+		await UserEntity.clear();
 	});
 
 	afterAll(async () => {
-		await UserEntity.getRepository().clear();
+		await UserEntity.clear();
 	});
 
 	describe('#create', () => {

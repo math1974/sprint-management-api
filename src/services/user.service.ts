@@ -29,7 +29,7 @@ export default class UserService {
 		});
 
 		if (isEmailInUse) {
-			throw new HttpException('EMAIL_IN_USE', HttpStatus.NOT_ACCEPTABLE);
+			throw new HttpException('EMAIL_IN_USE', HttpStatus.CONFLICT);
 		}
 
 		const user = new UserEntity();
