@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate, OneToMany, ManyToMany } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
 import Profession from '@app/enum/profession.enum';
@@ -51,8 +51,11 @@ export default class User extends BaseEntity {
 	@UpdateDateColumn()
 	updated_at: Date;
 
+	@BeforeUpdate()
 	@BeforeInsert()
 	beforeInsert(): void {
-		this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8));
+		if (this.password) {
+			this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8));
+		}
 	}
 }

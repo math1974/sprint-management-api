@@ -1,4 +1,5 @@
 import TagEntity from './tag.entity';
+import BoardEntity from './board.entity';
 import UserEntity from './user.entity';
 
-export { TagEntity, UserEntity };
+export { BoardEntity, TagEntity, UserEntity };
