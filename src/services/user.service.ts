@@ -16,8 +16,10 @@ export default class UserService {
 	async find(filter: findUserDto): Promise<UserEntity> {
 		return await this.userRepository.findOne({
 			where: {
-				id: filter.id
-			}
+				id: filter.id,
+				is_deleted: false
+			},
+			select: ['id', 'name', 'email', 'profession', 'created_at']
 		});
 	}
 
@@ -49,5 +51,28 @@ export default class UserService {
 				email: userCreated.email
 			})
 		};
+	}
+
+	async update({ filter, changes }: { filter: findUserDto; changes: upsertUserDto }): Promise<UserEntity> {
+		const isEmailInUse = await this.userRepository
+			.createQueryBuilder()
+			.where('email = :email and id <> :id', { email: changes.email, id: filter.id })
+			.getCount();
+
+		if (isEmailInUse) {
+			throw new HttpException('EMAIL_IN_USE', HttpStatus.CONFLICT);
+		}
+
+		const user = await this.find(filter);
+
+		if (!user) {
+			throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+		}
+
+		Object.assign(user, changes);
+
+		await this.userRepository.save(user);
+
+		return this.find(filter);
 	}
 }

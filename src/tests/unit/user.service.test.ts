@@ -1,5 +1,5 @@
 import { UserEntity } from '@app/entities';
-import { pick } from 'lodash';
+import { pick, omit } from 'lodash';
 import { upsertUserDto } from '@app/dtos/user.dto';
 import { UserController } from '@app/controllers';
 import { ProfessionEnum } from '@app/enum';
@@ -10,9 +10,17 @@ import { UserService } from '@app/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserInterfaces } from '@app/types';
 import { HttpException } from '@nestjs/common';
+import Profession from '@app/enum/profession.enum';
 
 describe('UserService', () => {
 	let service: UserService;
+
+	const userInfo = {
+		name: 'matheus',
+		email: 'matheus.ribeiro@example.com',
+		password: 'matheus',
+		profession: ProfessionEnum.DEVELOPER
+	};
 
 	beforeAll(async () => {
 		const app: TestingModule = await HelperUtils.createTestingModule({
@@ -52,6 +60,30 @@ describe('UserService', () => {
 
 		describe('with valid data and the email is not in database', () => {
 			it('should return the user created', async () => {
+				const userData: upsertUserDto = { ...userInfo };
+
+				const createdUser: UserInterfaces.CreateUser = await service.create(userData);
+
+				expect(createdUser).toHaveProperty('token');
+
+				expect(pick(createdUser, ['name', 'email', 'profession'])).toMatchObject(pick(userData, ['name', 'email', 'profession']));
+			});
+		});
+	});
+
+	describe('#find', () => {
+		describe('with unexistent id', () => {
+			it('should return null', async () => {
+				const user = await service.find({
+					id: 99999
+				});
+
+				expect(user).toBeNull();
+			});
+		});
+
+		describe('with valid id', () => {
+			it('should return the user', async () => {
 				const userData: upsertUserDto = {
 					name: 'matheus',
 					email: 'matheus.ribeiro@a.com',
@@ -61,9 +93,79 @@ describe('UserService', () => {
 
 				const createdUser: UserInterfaces.CreateUser = await service.create(userData);
 
-				expect(createdUser).toHaveProperty('token');
+				const user = await service.find({
+					id: createdUser.id
+				});
 
-				expect(pick(createdUser, ['name', 'email', 'profession'])).toMatchObject(pick(userData, ['name', 'email', 'profession']));
+				expect(user).not.toBeNull();
+				expect(user.id).toBe(createdUser.id);
+			});
+		});
+	});
+
+	describe('#update', () => {
+		describe('with unexistent id', () => {
+			it('should return NOT_FOUND', async () => {
+				const error = await service
+					.update({
+						filter: {
+							id: 9999999
+						},
+						changes: userInfo
+					})
+					.catch((r) => r);
+
+				expect(error).toMatchInlineSnapshot(`[HttpException: NOT_FOUND]`);
+			});
+		});
+
+		describe('with valid id', () => {
+			describe('and email that is being used', () => {
+				it('should return EMAIL_IN_USE', async () => {
+					const firstUserInfo = {
+						...userInfo,
+						email: 'foo@bar.com'
+					};
+
+					await service.create(firstUserInfo);
+
+					const secondUserCreated = await service.create({
+						...userInfo,
+						email: 'test@example.com'
+					});
+
+					const error = await service
+						.update({
+							filter: {
+								id: secondUserCreated.id
+							},
+							changes: firstUserInfo
+						})
+						.catch((err) => err);
+
+					expect(error).toMatchInlineSnapshot(`[HttpException: EMAIL_IN_USE]`);
+				});
+			});
+
+			describe('and valid data', () => {
+				it('should return the user updated', async () => {
+					const userCreated = await service.create(userInfo);
+					const changes = {
+						name: 'new name',
+						email: 'new.email@hotmail.com',
+						profession: Profession.DESIGNER,
+						password: 'new password'
+					};
+
+					const userUpdated = await service.update({
+						filter: {
+							id: userCreated.id
+						},
+						changes
+					});
+
+					expect(userUpdated).toMatchObject(omit(changes, ['password']));
+				});
 			});
 		});
 	});

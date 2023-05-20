@@ -16,7 +16,6 @@ export class upsertUserDto {
 	@IsEnum(ProfessionEnum)
 	readonly profession: ProfessionEnum;
 }
-
 export class findUserDto {
 	@IsNotEmpty()
 	readonly id: number;

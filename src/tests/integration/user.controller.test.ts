@@ -3,7 +3,6 @@ import { omit } from 'lodash';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
 import { createTestApplication } from '@app/tests/utils/helpers.utils';
-import { UserModule } from '@app/modules';
 import { UserEntity } from '@app/entities';
 import { ProfessionEnum } from '@app/enum';
 
@@ -22,9 +21,7 @@ describe('UserController', () => {
 	});
 
 	beforeAll(async () => {
-		app = await createTestApplication({
-			imports: [UserModule]
-		});
+		app = await createTestApplication();
 	});
 
 	describe('POST /users', () => {
@@ -129,4 +126,141 @@ describe('UserController', () => {
 			});
 		});
 	});
+
+	describe('GET /users', () => {
+		describe('without token', () => {
+			it('should return the unauthorized error', async () => {
+				const { body: errorResponse }: request.Response = await request(app.getHttpServer()).get('/users').expect(HttpStatus.UNAUTHORIZED);
+
+				expect(errorResponse.message).toMatchInlineSnapshot(`"UNAUTHORIZED"`);
+			});
+		});
+
+		describe('with token of a non existent or deleted user', () => {
+			it('should return the unauthorized error', async () => {
+				const { body } = await request(app.getHttpServer()).post('/users').send({ user: createUserInfo }).expect(HttpStatus.CREATED);
+
+				await UserEntity.update(body.id, { is_deleted: true });
+
+				const { body: errorResponse }: request.Response = await request(app.getHttpServer())
+					.get('/users')
+					.set('Authorization', `Bearer ${body.token}`)
+					.expect(HttpStatus.UNAUTHORIZED);
+
+				expect(errorResponse.message).toMatchInlineSnapshot(`"UNAUTHORIZED"`);
+			});
+		});
+	});
+
+	describe('PUT /users', () => {
+		describe('without token', () => {
+			it('should return the unauthorized error', async () => {
+				const { body: errorResponse }: request.Response = await request(app.getHttpServer()).put('/users').expect(HttpStatus.UNAUTHORIZED);
+
+				expect(errorResponse.message).toMatchInlineSnapshot(`"UNAUTHORIZED"`);
+			});
+		});
+
+		describe('with token of a non existent or deleted user', () => {
+			it('should return the unauthorized error', async () => {
+				const { body } = await request(app.getHttpServer()).post('/users').send({ user: createUserInfo }).expect(HttpStatus.CREATED);
+
+				await UserEntity.update(body.id, { is_deleted: true });
+
+				const { body: errorResponse }: request.Response = await request(app.getHttpServer())
+					.put('/users')
+					.set('Authorization', `Bearer ${body.token}`)
+					.expect(HttpStatus.UNAUTHORIZED);
+
+				expect(errorResponse.message).toMatchInlineSnapshot(`"UNAUTHORIZED"`);
+			});
+		});
+
+		describe('with valid data', () => {
+			describe('and the email is in use', () => {
+				it('should return EMAIL_IN_USE error', async () => {
+					await request(app.getHttpServer()).post('/users').send({ user: createUserInfo }).expect(HttpStatus.CREATED);
+
+					const { body: secondUserResponse } = await request(app.getHttpServer())
+						.post('/users')
+						.send({ user: { ...createUserInfo, email: 'new-email@example.com' } })
+						.expect(HttpStatus.CREATED);
+
+					const { body: errorResponse }: request.Response = await request(app.getHttpServer())
+						.put('/users')
+						.send({ user: createUserInfo })
+						.set('Authorization', `Bearer ${secondUserResponse.token}`)
+						.expect(HttpStatus.CONFLICT);
+
+					expect(errorResponse.message).toMatchInlineSnapshot(`"EMAIL_IN_USE"`);
+				});
+			});
+
+			describe('and email is not in use', () => {
+				it('should return the user updated', async () => {
+					const { body: userResponse } = await request(app.getHttpServer()).post('/users').send({ user: createUserInfo }).expect(HttpStatus.CREATED);
+
+					const { body: updateResponse }: request.Response = await request(app.getHttpServer())
+						.put('/users')
+						.send({ user: createUserInfo })
+						.set('Authorization', `Bearer ${userResponse.token}`)
+						.expect(HttpStatus.OK);
+
+					expect(updateResponse).toMatchObject(omit(createUserInfo, ['password']));
+				});
+			});
+		});
+	});
 });
+
+// describe('#update', () => {
+// 	describe('with valid id', () => {
+// 		describe('and email that is being used', () => {
+// 			it('should return EMAIL_IN_USE', async () => {
+// 				const firstUserInfo = {
+// 					...userInfo,
+// 					email: 'foo@bar.com'
+// 				};
+
+// 				await service.create(firstUserInfo);
+
+// 				const secondUserCreated = await service.create({
+// 					...userInfo,
+// 					email: 'test@example.com'
+// 				});
+
+// 				const error = await service
+// 					.update({
+// 						filter: {
+// 							id: secondUserCreated.id
+// 						},
+// 						changes: firstUserInfo
+// 					})
+// 					.catch((err) => err);
+
+// 				expect(error).toMatchInlineSnapshot(`[HttpException: EMAIL_IN_USE]`);
+// 			});
+// 		});
+
+// 		describe('and valid data', () => {
+// 			it('should return the user updated', async () => {
+// 				const userCreated = await service.create(userInfo);
+// 				const changes = {
+// 					name: 'new name',
+// 					email: 'new.email@hotmail.com',
+// 					profession: Profession.DESIGNER,
+// 					password: 'new password'
+// 				};
+
+// 				const userUpdated = await service.update({
+// 					filter: {
+// 						id: userCreated.id
+// 					},
+// 					changes
+// 				});
+
+// 				expect(userUpdated).toMatchObject(omit(changes, ['password']));
+// 			});
+// 		});
+// 	});
+// });

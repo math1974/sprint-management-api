@@ -3,20 +3,18 @@ import { AppController } from '@app/app.controller';
 import { AppService } from '@app/app.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Module } from '@nestjs/common';
+import { AppModule, AuthModule, TagModule, UserModule } from '@app/modules';
 
-type createModuleInterface = {
-	imports?: any[];
-	controllers?: any[];
-	providers?: any[];
-};
+@Module({
+	imports: [TypeOrmModule.forRoot(dbConfig), TagModule, UserModule, AuthModule],
+	controllers: [AppController],
+	providers: [AppService]
+})
+class E2eTestModule extends AppModule {}
 
-export const createTestApplication = async ({ imports = [], controllers = [], providers = [] }: createModuleInterface): Promise<INestApplication> => {
-	const moduleFixture: TestingModule = await createTestingModule({
-		imports,
-		controllers,
-		providers
-	});
+export const createTestApplication = async (): Promise<INestApplication> => {
+	const moduleFixture: TestingModule = await createTestingModule();
 
 	const app: INestApplication = moduleFixture.createNestApplication();
 
@@ -25,10 +23,8 @@ export const createTestApplication = async ({ imports = [], controllers = [], pr
 	return app;
 };
 
-export const createTestingModule = async ({ imports = [], controllers = [], providers = [] }: createModuleInterface): Promise<TestingModule> => {
+export const createTestingModule = async (): Promise<TestingModule> => {
 	return await Test.createTestingModule({
-		imports: [TypeOrmModule.forRoot(dbConfig), ...imports],
-		controllers: [AppController, ...controllers],
-		providers: [AppService, ...providers]
+		imports: [E2eTestModule]
 	}).compile();
 };
