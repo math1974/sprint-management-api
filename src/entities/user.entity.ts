@@ -1,7 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import {
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	BaseEntity,
+	CreateDateColumn,
+	UpdateDateColumn,
+	BeforeInsert,
+	BeforeUpdate,
+	OneToMany,
+	ManyToMany,
+	JoinTable
+} from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
 import Profession from '@app/enum/profession.enum';
+import { BoardEntity } from '.';
+import BoardUser from './board-user.entity';
 
 @Entity({
 	name: 'users'
@@ -51,8 +65,25 @@ export default class User extends BaseEntity {
 	@UpdateDateColumn()
 	updated_at: Date;
 
+	@ManyToMany(() => BoardEntity)
+	@JoinTable({
+		name: 'board_users',
+		joinColumn: {
+			name: 'users',
+			referencedColumnName: 'id'
+		},
+		inverseJoinColumn: {
+			name: 'boards',
+			referencedColumnName: 'id'
+		}
+	})
+	boards: BoardEntity[];
+
+	@BeforeUpdate()
 	@BeforeInsert()
 	beforeInsert(): void {
-		this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8));
+		if (this.password) {
+			this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8));
+		}
 	}
 }

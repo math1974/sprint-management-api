@@ -1,4 +1,4 @@
-import DatabaseModule from '../modules/database';
+import DatabaseModule from '../config/database';
 
 async function setup(): Promise<boolean> {
 	globalThis.database = DatabaseModule;

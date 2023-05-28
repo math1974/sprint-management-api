@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "NODE_ENV=production nest start",
-    "db:drop": "yarn typeorm schema:drop",
+    "db:drop": "yarn typeorm schema:drop --dataSource ./src/config/typeorm.datasource.ts",
     "typeorm": "NODE_ENV=development npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "yarn typeorm migration:create",
     "migration:undo": "yarn typeorm migration:revert --d ./src/config/typeorm.datasource.ts",
