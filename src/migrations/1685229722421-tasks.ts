@@ -1,10 +1,11 @@
+import { StatusEnum } from '@app/enum';
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
-export class Boards1684623029673 implements MigrationInterface {
+export class Tasks1685229722421 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.createTable(
 			new Table({
-				name: 'boards',
+				name: 'tasks',
 				columns: [
 					{
 						name: 'id',
@@ -15,13 +16,26 @@ export class Boards1684623029673 implements MigrationInterface {
 					},
 					{
 						name: 'title',
-						type: 'text',
+						type: 'varchar(255)',
 						isNullable: false
 					},
 					{
-						name: 'description',
-						type: 'text',
-						isNullable: true
+						name: 'content',
+						type: 'TEXT',
+						isNullable: true,
+						default: null
+					},
+					{
+						name: 'status',
+						type: 'enum',
+						enum: [StatusEnum.TO_DO, StatusEnum.SKIPPED, StatusEnum.RELEASED, StatusEnum.DONE, StatusEnum.DOING],
+						default: `'TO_DO'`,
+						isNullable: false
+					},
+					{
+						name: 'board_id',
+						type: 'int',
+						isNullable: false
 					},
 					{
 						name: 'creator_id',
@@ -53,7 +67,12 @@ export class Boards1684623029673 implements MigrationInterface {
 			})
 		);
 
-		await queryRunner.createForeignKeys('boards', [
+		await queryRunner.createForeignKeys('tasks', [
+			new TableForeignKey({
+				columnNames: ['board_id'],
+				referencedColumnNames: ['id'],
+				referencedTableName: 'boards'
+			}),
 			new TableForeignKey({
 				columnNames: ['creator_id'],
 				referencedColumnNames: ['id'],
@@ -68,6 +87,6 @@ export class Boards1684623029673 implements MigrationInterface {
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.dropTable('boards');
+		await queryRunner.dropTable('tasks');
 	}
 }

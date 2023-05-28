@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
-export class Boards1684623029673 implements MigrationInterface {
+export class BoardUsers1685229715517 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.createTable(
 			new Table({
-				name: 'boards',
+				name: 'board_users',
 				columns: [
 					{
 						name: 'id',
@@ -14,14 +14,20 @@ export class Boards1684623029673 implements MigrationInterface {
 						generationStrategy: 'increment'
 					},
 					{
-						name: 'title',
-						type: 'text',
+						name: 'user_id',
+						type: 'int',
 						isNullable: false
 					},
 					{
-						name: 'description',
-						type: 'text',
-						isNullable: true
+						name: 'is_admin',
+						type: 'boolean',
+						isNullable: false,
+						default: false
+					},
+					{
+						name: 'board_id',
+						type: 'int',
+						isNullable: false
 					},
 					{
 						name: 'creator_id',
@@ -53,7 +59,17 @@ export class Boards1684623029673 implements MigrationInterface {
 			})
 		);
 
-		await queryRunner.createForeignKeys('boards', [
+		await queryRunner.createForeignKeys('board_users', [
+			new TableForeignKey({
+				columnNames: ['user_id'],
+				referencedColumnNames: ['id'],
+				referencedTableName: 'users'
+			}),
+			new TableForeignKey({
+				columnNames: ['board_id'],
+				referencedColumnNames: ['id'],
+				referencedTableName: 'boards'
+			}),
 			new TableForeignKey({
 				columnNames: ['creator_id'],
 				referencedColumnNames: ['id'],
@@ -68,6 +84,6 @@ export class Boards1684623029673 implements MigrationInterface {
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.dropTable('boards');
+		await queryRunner.dropTable('board_users');
 	}
 }

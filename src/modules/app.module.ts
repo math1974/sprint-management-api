@@ -5,10 +5,20 @@ import { AppService } from '@app/app.service';
 
 import dbConfig from '@app/config/database';
 import { AuthMiddleware } from '@app/middlewares';
-import { AuthModule, TagModule, UserModule } from '@app/modules';
+import { AuthModule, BoardModule, TagModule, UserModule, TaskModule } from '@app/modules';
 
 @Module({
-	imports: [TypeOrmModule.forRoot(dbConfig), TagModule, UserModule, AuthModule],
+	imports: [
+		TypeOrmModule.forRoot({
+			...dbConfig,
+			autoLoadEntities: true
+		}),
+		TagModule,
+		UserModule,
+		AuthModule,
+		BoardModule,
+		TaskModule
+	],
 	controllers: [AppController],
 	providers: [AppService]
 })

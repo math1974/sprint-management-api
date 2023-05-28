@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 
-import { UserEntity } from '.';
+import { TaskEntity, UserEntity } from '.';
 
 @Entity({
 	name: 'boards'
@@ -28,8 +28,23 @@ export default class Board extends BaseEntity {
 	})
 	is_deleted: boolean;
 
+	@Column({
+		type: 'int',
+		nullable: false
+	})
+	creator_id: number;
+
+	@OneToMany(() => TaskEntity, (task) => task.board)
+	tasks: TaskEntity[];
+
 	@OneToOne(() => UserEntity)
 	@JoinColumn({ name: 'creator_id' })
+	creator: UserEntity;
+
+	@OneToOne(() => UserEntity)
+	@JoinColumn({ name: 'destroyer_id' })
+	destroyer: UserEntity;
+
 	@CreateDateColumn()
 	created_at: Date;
 
