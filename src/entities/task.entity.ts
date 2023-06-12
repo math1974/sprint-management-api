@@ -56,15 +56,15 @@ export default class Task extends BaseEntity {
 	})
 	destroyer_id: number;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'creator_id' })
 	creator: UserEntity;
 
-	@OneToOne(() => BoardEntity)
+	@OneToOne(() => BoardEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'board_id' })
 	board: BoardEntity;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'destroyer_id' })
 	destroyer: UserEntity;
 

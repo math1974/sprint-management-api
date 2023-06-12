@@ -27,19 +27,19 @@ export default class BoardUser extends BaseEntity {
 	})
 	board_id: number;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'board_id' })
 	board: BoardEntity;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'user_id' })
 	user: UserEntity;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'creator_id' })
 	creator: UserEntity;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'destroyer_id' })
 	destroyer: UserEntity;
 

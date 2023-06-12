@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { omit } from 'lodash';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
-import { createTestApplication } from '@app/tests/utils/helpers.utils';
+import { clearDB, createTestApplication } from '@app/tests/utils/helpers.utils';
 import { UserEntity } from '@app/entities';
 import { ProfessionEnum } from '@app/enum';
 
@@ -17,7 +17,7 @@ describe('UserController', () => {
 	};
 
 	beforeEach(async () => {
-		await UserEntity.clear();
+		await clearDB();
 	});
 
 	beforeAll(async () => {

@@ -1,7 +1,7 @@
 import { IsNotEmpty, Min } from 'class-validator';
 
 export class upsertBoardDto {
-	readonly id: number;
+	readonly id?: number;
 
 	@IsNotEmpty()
 	readonly title: string;

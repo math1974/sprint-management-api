@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserInterfaces } from '@app/types';
 import { HttpException } from '@nestjs/common';
 import Profession from '@app/enum/profession.enum';
+import { clearDB } from '../utils/helpers.utils';
 
 describe('UserService', () => {
 	let service: UserService;
@@ -23,21 +24,13 @@ describe('UserService', () => {
 	};
 
 	beforeAll(async () => {
-		const app: TestingModule = await HelperUtils.createTestingModule({
-			imports: [UserModule, TypeOrmModule.forFeature([UserEntity])],
-			controllers: [UserController],
-			providers: [UserService]
-		});
+		const app: TestingModule = await HelperUtils.createTestingModule();
 
 		service = app.get<UserService>(UserService);
 	});
 
-	beforeEach(async () => {
-		await UserEntity.clear();
-	});
-
-	afterAll(async () => {
-		await UserEntity.clear();
+	afterEach(async () => {
+		await clearDB();
 	});
 
 	describe('#create', () => {

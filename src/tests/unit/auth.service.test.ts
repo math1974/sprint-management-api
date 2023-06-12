@@ -1,33 +1,26 @@
 import { UserEntity } from '@app/entities';
 import { upsertUserDto } from '@app/dtos/user.dto';
 import { ProfessionEnum } from '@app/enum';
-import { AuthModule, UserModule } from '@app/modules';
 import { HelperUtils } from '@app/tests/utils';
 import { TestingModule } from '@nestjs/testing';
 import { AuthService, UserService } from '@app/services';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserInterfaces } from '@app/types';
 import { loginDto } from '@app/dtos/auth.dto';
+import { clearDB } from '../utils/helpers.utils';
 
 describe('AuthService', () => {
 	let service: AuthService;
 	let userService: UserService;
 
 	beforeAll(async () => {
-		const app: TestingModule = await HelperUtils.createTestingModule({
-			imports: [AuthModule, TypeOrmModule.forFeature([UserEntity]), UserModule]
-		});
+		const app: TestingModule = await HelperUtils.createTestingModule();
 
 		service = app.get<AuthService>(AuthService);
 		userService = app.get<UserService>(UserService);
 	});
 
-	beforeEach(async () => {
-		await UserEntity.clear();
-	});
-
-	afterAll(async () => {
-		await UserEntity.clear();
+	afterEach(async () => {
+		await clearDB();
 	});
 
 	describe('#login', () => {

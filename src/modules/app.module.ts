@@ -5,7 +5,7 @@ import { AppService } from '@app/app.service';
 
 import dbConfig from '@app/config/database';
 import { AuthMiddleware } from '@app/middlewares';
-import { AuthModule, BoardModule, TagModule, UserModule, TaskModule } from '@app/modules';
+import { AuthModule, BoardModule, UserModule, TaskModule } from '@app/modules';
 
 @Module({
 	imports: [
@@ -13,7 +13,6 @@ import { AuthModule, BoardModule, TagModule, UserModule, TaskModule } from '@app
 			...dbConfig,
 			autoLoadEntities: true
 		}),
-		TagModule,
 		UserModule,
 		AuthModule,
 		BoardModule,

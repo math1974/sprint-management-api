@@ -34,14 +34,14 @@ export default class Board extends BaseEntity {
 	})
 	creator_id: number;
 
-	@OneToMany(() => TaskEntity, (task) => task.board)
+	@OneToMany(() => TaskEntity, (task) => task.board, { onDelete: 'CASCADE' })
 	tasks: TaskEntity[];
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'creator_id' })
 	creator: UserEntity;
 
-	@OneToOne(() => UserEntity)
+	@OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'destroyer_id' })
 	destroyer: UserEntity;
 
