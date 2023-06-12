@@ -16,7 +16,7 @@ describe('UserController', () => {
 		profession: ProfessionEnum.DEVELOPER
 	};
 
-	beforeEach(async () => {
+	afterEach(async () => {
 		await clearDB();
 	});
 
