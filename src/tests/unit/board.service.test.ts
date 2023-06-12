@@ -48,13 +48,15 @@ describe('BoardService', () => {
 
 	describe('#find', () => {
 		describe('with unexistent id', () => {
-			it('should return null', async () => {
-				const board = await service.find({
-					boardId: 9999,
-					userId: createdUser.id
-				});
+			it('should return NOT_FOUND', async () => {
+				const errorResponse = await service
+					.find({
+						boardId: 9999,
+						userId: createdUser.id
+					})
+					.catch((r) => r);
 
-				expect(board).toBeNull();
+				expect(errorResponse).toMatchInlineSnapshot(`[HttpException: NOT_FOUND]`);
 			});
 		});
 

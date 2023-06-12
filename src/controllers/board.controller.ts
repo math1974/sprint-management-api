@@ -29,8 +29,8 @@ export default class BoardController {
 		return this.boardService.find({ boardId, userId });
 	}
 
-	@Put()
-	update(@User('id') userId: number, @Param('id') boardId: number, @Body('user') changes: upsertBoardDto): Promise<BoardEntity> {
+	@Put('/:id')
+	update(@User('id') userId: number, @Param('id') boardId: number, @Body('board') changes: upsertBoardDto): Promise<BoardEntity> {
 		return this.boardService.update({
 			filter: {
 				userId,

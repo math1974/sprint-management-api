@@ -1,13 +1,9 @@
-import { UserEntity } from '@app/entities';
 import { pick, omit } from 'lodash';
 import { upsertUserDto } from '@app/dtos/user.dto';
-import { UserController } from '@app/controllers';
 import { ProfessionEnum } from '@app/enum';
-import { UserModule } from '@app/modules';
 import { HelperUtils } from '@app/tests/utils';
 import { TestingModule } from '@nestjs/testing';
 import { UserService } from '@app/services';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserInterfaces } from '@app/types';
 import { HttpException } from '@nestjs/common';
 import Profession from '@app/enum/profession.enum';

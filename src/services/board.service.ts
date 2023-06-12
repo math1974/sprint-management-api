@@ -14,13 +14,19 @@ export default class UserService {
 	) {}
 
 	async find(filter: findBoardDto): Promise<BoardEntity> {
-		return await this.boardRepository.findOne({
+		const board = await this.boardRepository.findOne({
 			where: {
 				id: filter.boardId,
 				is_deleted: false
 			},
-			select: ['id', 'title', 'description', 'created_at']
+			select: ['id', 'title', 'description', 'created_at', 'creator_id']
 		});
+
+		if (!board) {
+			throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+		}
+
+		return board;
 	}
 
 	async list(filter: listBoardDto): Promise<BoardEntity[]> {

@@ -45,7 +45,11 @@ export async function clearDB() {
 }
 
 export const createTestingModule = async (): Promise<TestingModule> => {
-	return await Test.createTestingModule({
+	const testModule = await Test.createTestingModule({
 		imports: [E2eTestModule]
 	}).compile();
+
+	await clearDB();
+
+	return testModule;
 };
